@@ -56,7 +56,7 @@ int MH::init_sol(){
     IloCplex cplex(model);
     cplex.exportModel("model.lp");
 
-    cplex.setParam(IloCplex::Param::TimeLimit, 2);
+    cplex.setParam(IloCplex::Param::TimeLimit, 5);
     cplex.solve();
     cplex.out() << "Solution status: " << cplex.getStatus() << endl;
     cplex.out() << " Solution value: " << cplex.getObjValue () << endl;
