@@ -1,0 +1,247 @@
+model ModelName
+uses "mmxprs", "mmsystem"; !gain access to the Xpress-Optimizer solver
+!setparam("XPRS_MAXTIME",-3600)
+
+!setparam("XPRS_MAXMIPSOL",1)
+parameters
+input="p4.2.a.txt"	
+bks=206
+!input="data.txt"
+end-parameters
+
+setparam("XPRS_MAXTIME",-10)
+
+declarations
+N,K,index:integer
+Tmax: real
+Qmax=25
+ITERMAX=30
+best: real
+ass: array(range) of real
+p:array(range)of integer
+coord:array(range,1..2) of real
+t:array(range,range)of real
+score: real	
+!input: string
+end-declarations	
+!writeln("select input file:")
+!readln(input)
+
+!fopen("p4.2.a.txt",F_INPUT)
+!fopen('',F_INPUT)
+fopen(input,F_INPUT)
+readln('n',N)
+readln('m',K)
+readln('tmax',Tmax)
+
+forall(i in 1..N)do
+readln(coord(i,1),coord(i,2),p(i))
+end-do
+fclose(F_INPUT)
+
+declarations
+X:array(1..N,1..N,1..K)of mpvar
+Y:array(1..N,1..K)of mpvar	
+Z:array(1..N) of mpvar
+T:array(1..K)of mpvar
+tau:array(1..N)of mpvar
+profit:mpvar
+end-declarations
+
+best:=0
+forall(i in 1..N, j in 1..N)do
+t(i,j):=sqrt((coord(i,1)-coord(j,1))^2+(coord(i,2)-coord(j,2))^2)
+end-do
+
+iter:=1
+starttime:=gettime
+!forall(iter in 1..ITERMAX)do
+while(iter<ITERMAX and best<bks-0.1)do
+
+profit=sum(i in 1..N, k in 1..K)p(i)*Y(i,k)
+
+forall(i in 2..N-1, k in 1..K)do
+sum(j in 1..N)X(i,j,k)=Y(i,k)
+end-do
+
+forall(i in 2..N-1, k in 1..K)do
+sum(j in 1..N-1)X(j,i,k)=sum(j in 2..N)X(i,j,k)
+end-do
+
+sum(k in 1..K, j in 2..N-1)X(1,j,k)=sum(k in 1..K, j in 2..N-1)X(j,N,k)
+
+sum(k in 1..K, j in 2..N-1)X(1,j,k)=sum(k in 1..K)Y(1,k)
+
+sum(k in 1..K, j in 2..N-1)X(j,N,k)=sum(k in 1..K)Y(N,k)
+
+sum(k in 1..K, j in 2..N-1)X(1,j,k)=K
+
+forall(k in 1..K, j in 1..N)do
+X(j,1,k)=0
+X(N,j,k)=0
+end-do
+
+forall(i in 2..N-1)do
+sum(k in 1..K)Y(i,k)<=1
+end-do
+
+forall(k in 1..K)do
+T(k)=sum(i in 1..N,j in 1..N)t(i,j)*X(i,j,k)
+T(k)<=Tmax
+end-do
+
+tau(1)=0
+
+forall(j in 2..N-1, i in 1..N-1)do
+tau(j)>=tau(i)+t(i,j)-10000*(1-sum(k in 1..K)X(i,j,k))
+end-do
+
+!forall(j in 2..N-1, i in 1..N)do
+!tau(j)-tau(i)+1-100*(1-sum(k in 1..K)X(i,j,k))
+!tau(j)>=0
+!end-do
+
+forall(i in 2..N-1)do
+Z(i)=sum(k in 1..K)Y(i,k)
+end-do
+
+
+forall(i in 1..N, k in 1..K)do
+X(i,i,k)=0
+end-do
+
+forall(i in 1..N, j in 1..N, k in 1..K)do
+X(i,j,k) is_binary
+end-do
+
+forall(i in 1..N, k in 1..K)do
+Y(i,k) is_binary
+end-do
+
+forall(i in 1..N)do
+Z(i) is_binary
+end-do
+
+!forall(i in 1..N)do
+!tau(i) is_integer
+!end-do
+!matheuristic
+
+
+
+
+!maximize(profit)
+!writeln(coord)
+!writeln(p)
+!writeln(t)
+!writeln(N," ",M)
+!forall(k in 1..K,i in 1..N)do
+!if(getsol(Y(i,k))>0.1)then
+!writeln(i," ",k," ",p(i))
+!end-if
+!end-do
+
+score:=0
+forall(i in 1..N)do
+score:=score+p(i)
+flag(i):=0
+out(i):=p(i)
+end-do
+
+!Y(8,1)=1
+!Y(35,1)=1
+!Y(15,2)=1
+!Y(53,2)=1
+!Y(83,2)=1
+!Y(98,2)=1
+
+
+!flag(8):=1
+!flag(35):=1
+!flag(15):=1
+!flag(53):=1
+!flag(83):=1
+!flag(98):=1
+
+!score:=0
+if(iter>1)then
+setparam("XPRS_MAXTIME",-10)
+forall(i in 2..N-1)do
+if(ass(i)=1)then
+flag(i):=1
+!else
+score:=score-out(i)	
+out(i):=0
+end-if
+end-do
+
+
+!forall(i in 1..N)do
+!out(i):=p(i)
+!end-do
+
+
+forall(q in 1..Qmax)do
+rand:=round((score)*random+0.5)
+!writeln(randp)
+currentscore:=0
+item:=1
+while(rand>currentscore+out(item)) do
+currentscore:=currentscore+out(item)
+item:=item+1
+end-do	
+!write(item, " ")
+flag(item):=1
+!write(item," ")
+score:=score-out(item)
+out(item):=0
+end-do
+
+!write(flag)
+!writeln("\n")
+!writeln("77 ",flag(77)," 97 ",flag(97))
+forall(i in 2..N-1)do
+if(flag(i)<1)then
+addingc(iter,i):=sum(k in 1..K) Y(i,k)=0
+!writeln("non posso usare ",i)
+!else
+!write(" ",i)
+end-if
+end-do
+
+
+!setparam("XPRS_MAXTIME",-10)
+
+end-if
+maximize(profit)
+
+!forall(k in 1..K,i in 1..N)do
+!if(getsol(Y(i,k))>0.1)then
+!writeln(i," ",k," ",p(i))
+!end-if
+!end-do
+
+
+forall(i in 2..N-1)do
+sethidden(addingc(iter,i),true)
+end-do
+if(getsol(profit)> best)then
+best:=getsol(profit)
+!writeln("best",best)
+forall(i in 2..N-1)do
+if(getsol(Z(i))>0.1)then
+ass(i):=1
+else
+ass(i):=0
+!if(best>=bks)then
+!end-if
+!writeln(i," ",ass(i))
+end-if
+end-do
+end-if
+writeln("iter ",iter," score ",getsol(profit), " best ",best)
+iter:=iter+1
+end-do
+endtime:=gettime-starttime
+writeln("TIME:",endtime)
+end-model
