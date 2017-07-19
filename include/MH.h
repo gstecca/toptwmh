@@ -61,6 +61,8 @@ public:
 	float getValue();
 	float getBestValue();
 	int iteration();
+	int destroy();
+	int rebuild();
 	virtual ~MH();
 };
 
