@@ -193,6 +193,13 @@ int MH::iteration(){
 
 	return 0;
 }
+int MH::destroy(){
+	return 0;
+}
+int MH::rebuild(){
+	return 0;
+}
+
 
 MH::~MH() {
 	// TODO Auto-generated destructor stub
