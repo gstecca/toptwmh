@@ -34,6 +34,7 @@ int main()
     cout << s << "\n";
     coords = dat.coords;
     p = dat.p;
+    cout << "SIZE OF P: " << p.size() << "\n";
 
     
     //load_data(&p, &coords, &n, &m, &tau, "../p4.2.a.txt");
@@ -445,17 +446,17 @@ int load_data_tw(toptwdata * dat, string filename)
         pos = line.find(delimiter, startsub);
         token = line.substr(startsub, pos - startsub);
             // coords[i][1] = stof(token);
-        dat->m = stoi(token);  
+        dat->m = stoi(token);
         //cout << dat->m << "\n";
-        
+
         startsub = pos + 1; //
         pos = line.find(delimiter, startsub);
         token = line.substr(startsub, pos - startsub);
             // coords[i][1] = stof(token);
-        dat->n  = stoi(token); 
+        dat->n  = stoi(token);
 
         getline(myfile, line); //skip a line
-        
+
        // c->y = stof(token);
             // cout << "y coord: " << token << endl;
             // profit
@@ -469,7 +470,7 @@ int load_data_tw(toptwdata * dat, string filename)
             *   i = vertex number
             *   x = x coordinate
             *   y = y coordinate
-            *   d = service duration or visiting time	
+            *   d = service duration or visiting time
             *   S = profit of the location
             *   f = not relevant
             *   a = not relevant
@@ -482,53 +483,54 @@ int load_data_tw(toptwdata * dat, string filename)
             *    - The number of paths (P) is not included in the data file. This
             *
             *
-            *   
+            *
             */
             //cout << "line: " << line << "\n";
-            
+
             string buf; // Have a buffer string
             stringstream ss(line); // Insert the string into a stream
 
             vector<string> tokens; // Create vector to hold our words
 
-            
+
             while (ss >> buf)
                 tokens.push_back(buf);
-            /*cout << "LINE TOKENIZED  \n";    
+            /*cout << "LINE TOKENIZED  \n";
             for (string aaa : tokens)
                 cout << aaa << "*";
             cout << "\n";
             */
-            coord* c = new coord();
-            tw * ttw = new tw();
+            coord c = coord();
+            tw ttw = tw();
 
             dat->id.push_back(stoi(tokens[0]));
             float x = stof(tokens[1]);
             float y = stof(tokens[2]);
-            c->x = x;
-            c->y = y;
-            dat->coords.push_back(*c);
+            c.x = x;
+            c.y = y;
+            dat->coords.push_back(c);
             //visit time
             dat->s.push_back(stoi(tokens[3]));
             // profit
             dat->p.push_back(stoi(tokens[4]));
             // time windows
-            ttw->l = stoi(tokens[tokens.size()-2]);
-            ttw->r = stoi(tokens[tokens.size()-1]);
-            dat->atw.push_back(*ttw);
+            ttw.l = stoi(tokens[tokens.size()-2]);
+            ttw.r = stoi(tokens[tokens.size()-1]);
+            dat->atw.push_back(ttw);
             if(i == 0){
-                dat->tau = ttw->r;
+                dat->tau = ttw.r;
                 i = 1;
             }
         }
 
     } else
         cout << "error opening file\n";
-         
-          
+
+
 
     return 0;
 }
+
 
 
 int load_data(vector<int>* profits, vector<coord>* coords, int* n, int* m, float* tau, string filename)
