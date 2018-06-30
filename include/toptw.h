@@ -39,7 +39,7 @@ struct toptwdata {
         ss+= "m: " + std::to_string(m) + "\n";
         ss+= "Tmax: " + std::to_string(tau) + "\n";
         ss+= "id\tx\ty\ts\tp\tl\tr\n\n";
-        for (int i = 0; i < id.size(); i++){
+        for (auto i : id){
             ss += std::to_string(id[i]) + "\t" + std::to_string(coords[i].x) + "\t" 
                + std::to_string(coords[i].y) + "\t" + std::to_string(s[i]) + "\t" 
                +  std::to_string(p[i]) + "\t" + std::to_string(atw[i].l) + "\t" 

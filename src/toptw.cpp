@@ -14,14 +14,14 @@ ILOSTLBEGIN
 
 int main()
 {
-    bool SOLVE_EXACTLY = false;
+    bool SOLVE_EXACTLY = true;
 	vector<int> p;
     vector<coord> coords;
     vector<Node> nodes;
     toptwdata dat;
     params pam;
     //string filename = "r101.txt";
-    string filename = "pr01.txt";
+    string filename = "c101.txt";
     load_data_tw(&dat, filename);
     int n = dat.n;
     tw atw;
